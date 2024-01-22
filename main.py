@@ -3,14 +3,17 @@ import numpy as np
 import csv
 import cv2
 import os
+from temp import writeAttendance
 import pandas as pd
 import threading
+import time
 cap=cv2.VideoCapture(0)
 face_cap=cv2.CascadeClassifier("C:/Users/naman/AppData/Local//Programs/Python/Python311/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
 count=0
 personName="Naman Bansal"
 def showImg():
     while True:
+        time.sleep(1//20)
         ret,frame=cap.read()
         faces=face_cap.detectMultiScale(
             cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY),
@@ -19,6 +22,7 @@ def showImg():
             minSize=(30,30),
             flags=cv2.CASCADE_SCALE_IMAGE
         )
+        
         for x,y,w,h in faces:
             cv2.putText(frame,text=personName,fontFace=cv2.FONT_HERSHEY_COMPLEX,fontScale=0.8,color=(0,255,0),org=(x,y-6),thickness=2)
             cv2.rectangle(frame,pt1=(x,y),pt2=(x+w,y+h),thickness=3,color=(0,255,255))
@@ -32,6 +36,7 @@ def classifyImg():
     global personName   
     global count
     while True:
+        time.sleep(1//20)
         ret,frame=cap.read()
         fileNam=f"myimg{count}.png"
         cv2.imwrite(fileNam, cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY))
@@ -47,6 +52,11 @@ def classifyImg():
             if len(id_list)!=0:
                 if len(id_list[0])!=0:
                     personName=id_list[0].split("/")[2][0:-4]
+                    writeAttendance(personName)
+                else:
+                    personName="Unknown"
+            else:
+                personName="Unknown"
         os.remove(fileNam)
         if cv2.waitKey(1) & 0xFF == ord('x'): 
             break
